@@ -1,0 +1,4 @@
+couchdb/*.couch
+couchdb/.*_design
+core/_build/
+core/deps/

@@ -1,0 +1,28 @@
+version: '3'
+services:
+  core:
+    build: ./core
+    ports:
+    - "4000:4000"
+    volumes:
+    - "./core:/app"
+    environment:
+    - MIX_ENV=prod
+    - PORT=4000
+    links:
+    - rabbitmq
+    - couchdb
+    command: mix phx.server
+  rabbitmq:
+    image: rabbitmq
+    ports:
+    - "35197:35197"
+    - "4369:4369"
+    - "5671:5671"
+    - "5672:5672"
+  couchdb:
+    image: couchdb
+    ports:
+    - "5984:5984"
+    volumes:
+    - "./couchdb/:/opt/couchdb/data"
