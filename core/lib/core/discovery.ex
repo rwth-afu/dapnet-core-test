@@ -15,7 +15,7 @@ defmodule Core.Discovery do
 
     nodes = File.read!("/config/seed.json")
     |> Poison.decode!
-    |> Enum.map(fn host -> {host, %{reachable: false}} end)
+    |> Enum.map(fn host -> {host, %{reachable: false, last_seen: nil}} end)
     |> Map.new
 
     Logger.info("Initial node list: #{inspect nodes}")
@@ -34,10 +34,10 @@ defmodule Core.Discovery do
         ]) do
           {:ok, response} ->
             Logger.info("Reached #{node}!")
-            {node, %{reachable: true}}
+            {node, %{params | reachable: true, last_seen: Timex.now()}}
           _ ->
             Logger.warn("Could not reach #{node}!")
-            {node, %{reachable: false}}
+            {node, %{params | reachable: false}}
         end
       end)
     end)

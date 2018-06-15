@@ -19,7 +19,7 @@ defmodule Core.Mixfile do
   def application do
     [
       mod: {Core.Application, []},
-      applications: [:amqp, :httpoison, :cowboy],
+      applications: [:amqp, :httpoison, :cowboy, :timex],
       extra_applications: [:logger, :runtime_tools]
     ]
   end
@@ -36,6 +36,7 @@ defmodule Core.Mixfile do
       {:amqp, "~> 1.0.3"},
       {:poison, "~> 3.1"},
       {:httpoison, "~> 1.1.1"},
+      {:timex, "~> 3.1"},
       {:phoenix, "~> 1.3.2"},
       {:phoenix_pubsub, "~> 1.0"},
       {:phoenix_html, "~> 2.10"},
