@@ -14,6 +14,9 @@ services:
     - rabbitmq
     - couchdb
     command: mix phx.server
+    depends_on:
+    - rabbitmq
+    - couchdb
   rabbitmq:
     image: rabbitmq
     ports:
@@ -27,3 +30,6 @@ services:
     - "5984:5984"
     volumes:
     - "./couchdb/:/opt/couchdb/data"
+    environment:
+    - COUCHDB_USER=admin
+    - COUCHDB_PASSWORD=admin

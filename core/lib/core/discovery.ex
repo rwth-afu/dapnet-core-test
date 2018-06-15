@@ -2,8 +2,6 @@ defmodule Core.Discovery do
   use GenServer
   require Logger
 
-  @behaviour :gen_event
-
   def nodes, do: GenServer.call(__MODULE__, :nodes)
 
   def start_link do
@@ -14,8 +12,10 @@ defmodule Core.Discovery do
     Process.send_after(self(), :update, 1000)
 
     nodes = File.read!("/config/seed.json")
-    |> Poison.decode!
-    |> Enum.map(fn host -> {host, %{reachable: false, last_seen: nil}} end)
+    |> Poison.decode!(keys: :atoms)
+    |> Enum.map(fn {node, params} -> {node,
+         Map.merge(params, %{last_seen: nil, reachable: false})}
+       end)
     |> Map.new
 
     Logger.info("Initial node list: #{inspect nodes}")
@@ -28,7 +28,7 @@ defmodule Core.Discovery do
 
     Enum.map(nodes, fn {node, params} ->
       task = Task.async(fn ->
-      case HTTPoison.get(node <> "/api/discovery", [
+      case HTTPoison.get("#{node}:#{params.port}/api/discovery", [
           recv_timeout: 3000,
           timeout: 3000
         ]) do

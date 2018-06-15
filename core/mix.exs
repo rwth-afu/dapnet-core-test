@@ -37,6 +37,7 @@ defmodule Core.Mixfile do
       {:poison, "~> 3.1"},
       {:httpoison, "~> 1.1.1"},
       {:timex, "~> 3.1"},
+      {:couchdb, github: "7h0ma5/elixir-couchdb"},
       {:phoenix, "~> 1.3.2"},
       {:phoenix_pubsub, "~> 1.0"},
       {:phoenix_html, "~> 2.10"},

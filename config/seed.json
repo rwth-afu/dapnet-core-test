@@ -1,5 +1,11 @@
-[
-    "dapnetdc1.db0sda.ampr.org:4000",
-    "dapnetdc2.db0sda.ampr.org:4000",
-    "dapnetdc3.db0sda.ampr.org:4000"
-]
+{
+    "dapnetdc1.db0sda.ampr.org": {
+        "port": 4000
+    },
+    "dapnetdc2.db0sda.ampr.org": {
+        "port": 4000
+    },
+    "dapnetdc3.db0sda.ampr.org": {
+        "port": 4000
+    }
+}
