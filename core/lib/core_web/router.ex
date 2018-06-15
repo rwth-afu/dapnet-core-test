@@ -20,7 +20,9 @@ defmodule CoreWeb.Router do
   end
 
   # Other scopes may use custom stacks.
-  # scope "/api", CoreWeb do
-  #   pipe_through :api
-  # end
+  scope "/api", CoreWeb do
+    pipe_through :api
+
+    get "/discovery", DiscoveryController, :index
+  end
 end

@@ -6,8 +6,9 @@ services:
     - "4000:4000"
     volumes:
     - "./core:/app"
+    - "./config/:/config"
     environment:
-    - MIX_ENV=prod
+    - MIX_ENV=dev
     - PORT=4000
     links:
     - rabbitmq
