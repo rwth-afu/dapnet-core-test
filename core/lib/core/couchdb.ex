@@ -33,7 +33,6 @@ defmodule Core.CouchDB do
 
     if !Enum.empty?(errors) do
       Logger.error("Can't connect to CouchDB.")
-    else
       Process.send_after(self(), :migrate, 10000)
     end
 

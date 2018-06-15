@@ -5,13 +5,13 @@ config :core, Core,
 
 config :core, Core.Discovery,
   seed: %{
-    "dapnetdc1.db0sda.ampr.org": %{
+    "dapnetdc1.db0sda.ampr.org" => %{
       port: 4000
     },
-    "dapnetdc2.db0sda.ampr.org": %{
+    "dapnetdc2.db0sda.ampr.org" => %{
       port: 4000
     },
-    "dapnetdc3.db0sda.ampr.org": %{
+    "dapnetdc3.db0sda.ampr.org" => %{
       port: 4000
     }
   }
