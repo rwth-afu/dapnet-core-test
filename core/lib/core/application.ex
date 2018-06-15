@@ -13,6 +13,7 @@ defmodule Core.Application do
       worker(Core.Queue, [], restart: :permanent),
       worker(Core.Discovery, [], restart: :permanent),
       worker(Core.CouchDB, [], restart: :permanent),
+      worker(Core.Replication, [], restart: :permanent)
       # Start your own worker by calling: Core.Worker.start_link(arg1, arg2, arg3)
       # worker(Core.Worker, [arg1, arg2, arg3]),
     ]

@@ -5,6 +5,8 @@ defmodule Core.CouchDB do
   @mgmt_databases ["_users", "_replicator", "_global_changes"]
   @databases ["users", "transmitters", "rubrics"]
 
+  def sync_with(node), do: GenServer.cast(__MODULE__, {:sync_with, node})
+
   def start_link() do
     GenServer.start_link(__MODULE__, {}, [name: __MODULE__])
   end
@@ -25,25 +27,21 @@ defmodule Core.CouchDB do
     {:noreply, server}
   end
 
-#  def handle_cast(:sync, server) do
-#    %{name: local_db} = contacts
-#
-#    local_url = CouchDB.Server.url(server, "/#{local_db}")
-#
-#    remote_user = sync |> Map.get(:user)
-#    remote_password = sync |> Map.get(:key)
-#    remote_db = "user_" <> String.downcase(remote_user)
-#    remote_url = "https://#{remote_user}:#{remote_password}"
-#    <> "@cloudshack.org:6984/#{remote_db}"
-#
-#    options = [create_target: false, filter: "logbook/sync", continuous: true]
-#    CouchDB.Server.replicate(server, local_url, remote_url, options)
-#    |> inspect |> Logger.debug
-#
-#    # TODO: Enable other direction
-#    # options = [filter: "logbook/sync"]
-#    # CouchDB.Server.replicate server, remote_url, local_url, options
-#
-#    {:noreply, server}
-#  end
+  def handle_cast({:sync_with, node}, server) do
+    Logger.info("sync couchdb with #{node}")
+
+    @databases
+    |> Enum.each(fn db ->
+      local_url = CouchDB.Server.url(server, "/#{db}")
+      remote_url = "http://admin:admin@#{node}:5984/#{db}"
+
+      options = [create_target: false, continuous: true]
+
+      result = CouchDB.Server.replicate(server, remote_url, local_url, options)
+
+      Logger.debug "Replication status: #{inspect result}"
+    end)
+
+    {:noreply, server}
+  end
 end

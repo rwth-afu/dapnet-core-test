@@ -9,12 +9,17 @@ defmodule Core.Replication do
   end
 
   def init(_opts) do
-    Process.send_after(self(), :update, 1000)
+    Process.send_after(self(), :update, 10000)
     {:ok, nil}
   end
 
   def handle_info(:update, state) do
-    nodes = Core.Discovery.nodes()
+    hostname = Application.get_env(:core, Core)[:hostname]
+
+    Core.Discovery.nodes()
+    |> Enum.filter(fn {node, _} -> node != hostname end)
+    |> Enum.filter(fn {_, params} -> Map.get(params, :reachable) end)
+    |> Enum.each(fn {node, _} -> Core.CouchDB.sync_with(node) end)
 
     Process.send_after(self(), :update, 60000)
     {:noreply, state}

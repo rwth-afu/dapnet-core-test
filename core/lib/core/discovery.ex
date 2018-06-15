@@ -11,8 +11,7 @@ defmodule Core.Discovery do
   def init(_opts) do
     Process.send_after(self(), :update, 1000)
 
-    nodes = File.read!("/config/seed.json")
-    |> Poison.decode!(keys: :atoms)
+    nodes = Application.get_env(:core, __MODULE__)[:seed]
     |> Enum.map(fn {node, params} -> {node,
          Map.merge(params, %{last_seen: nil, reachable: false})}
        end)
