@@ -6,6 +6,7 @@ defmodule Core.CouchDB do
   @databases ["users", "transmitters", "rubrics"]
 
   def sync_with(node), do: GenServer.cast(__MODULE__, {:sync_with, node})
+  def db(name), do: GenServer.call(__MODULE__, {:db, name})
 
   def start_link() do
     GenServer.start_link(__MODULE__, {}, [name: __MODULE__])
@@ -55,5 +56,9 @@ defmodule Core.CouchDB do
     end)
 
     {:noreply, server}
+  end
+
+  def handle_call({:db, name}, _from, server) do
+    {:reply, CouchDB.Server.database(server, name), server}
   end
 end
