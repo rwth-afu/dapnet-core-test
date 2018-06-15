@@ -15,3 +15,5 @@ config :core, Core.Discovery,
       port: 4000
     }
   }
+
+import_config "/config/*.local.exs"
