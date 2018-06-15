@@ -1,5 +1,5 @@
 defmodule Core.CouchDB do
-  use GenServer
+  use GenServer, shutdown: 5000
   require Logger
 
   @mgmt_databases ["_users", "_replicator", "_global_changes"]
@@ -13,22 +13,35 @@ defmodule Core.CouchDB do
 
   def init(args) do
     server = CouchDB.connect("couchdb", 5984, "http", "admin", "admin")
-    GenServer.cast(__MODULE__, :migrate)
+    Process.send_after(self(), :migrate, 5000)
     {:ok, server}
   end
 
-  def handle_cast(:migrate, server) do
-    Enum.concat([@databases, @mgmt_databases])
-    |> Enum.each(fn name ->
+  def handle_info(:migrate, server) do
+    Logger.info("Creating CouchDB databases if necessary.")
+
+    results = Enum.concat([@databases, @mgmt_databases])
+    |> Enum.map(fn name ->
       database = server |> CouchDB.Server.database(name)
       CouchDB.Database.create database
     end)
+
+    errors = results |> Enum.filter(&match?({:error, _}, &1))
+    |> Enum.map(fn {:error, reason} -> reason end)
+    |> Enum.map(&Poison.decode/1)
+    |> Enum.filter(fn {_, error} -> Map.get(error, "error") != "file_exists" end)
+
+    if !Enum.empty?(errors) do
+      Logger.error("Can't connect to CouchDB.")
+    else
+      Process.send_after(self(), :migrate, 10000)
+    end
 
     {:noreply, server}
   end
 
   def handle_cast({:sync_with, node}, server) do
-    Logger.info("sync couchdb with #{node}")
+    Logger.info("Sync CouchDB with #{node}")
 
     @databases
     |> Enum.each(fn db ->
