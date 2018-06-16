@@ -1,5 +1,8 @@
 couchdb/*.couch
 couchdb/.*_design
+couchdb/.shards
+couchdb/shards
 core/_build/
 core/deps/
 core/log/
+config/node.local.exs

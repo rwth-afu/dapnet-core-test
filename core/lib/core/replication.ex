@@ -14,11 +14,7 @@ defmodule Core.Replication do
   end
 
   def handle_info(:update, state) do
-    hostname = Application.get_env(:core, Core)[:hostname]
-
-    Core.Discovery.nodes()
-    |> Enum.filter(fn {node, _} -> node != hostname end)
-    |> Enum.filter(fn {_, params} -> Map.get(params, :reachable) end)
+    Core.Discovery.reachable_nodes()
     |> Enum.each(fn {node, _} -> Core.CouchDB.sync_with(node) end)
 
     Process.send_after(self(), :update, 60000)

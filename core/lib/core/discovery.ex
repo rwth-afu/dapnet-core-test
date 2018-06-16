@@ -3,6 +3,7 @@ defmodule Core.Discovery do
   require Logger
 
   def nodes, do: GenServer.call(__MODULE__, :nodes)
+  def reachable_nodes, do: GenServer.call(__MODULE__, :reachable_nodes)
 
   def start_link do
     GenServer.start_link(__MODULE__, [], [name: __MODULE__])
@@ -51,11 +52,22 @@ defmodule Core.Discovery do
     {:noreply, nodes}
   end
 
+
   def handle_info({:DOWN, ref, proc, pid, shutdown}, nodes) when is_reference(ref) do
     {:noreply, nodes}
   end
 
   def handle_call(:nodes, _from, nodes) do
     {:reply, nodes, nodes}
+  end
+
+  def handle_call(:reachable_nodes, _from, nodes) do
+    hostname = Application.get_env(:core, Core)[:hostname]
+
+    reachable_nodes = nodes
+    |> Enum.filter(fn {node, _} -> node != hostname end)
+    |> Enum.filter(fn {_, params} -> Map.get(params, :reachable) end)
+
+    {:reply, reachable_nodes, nodes}
   end
 end
