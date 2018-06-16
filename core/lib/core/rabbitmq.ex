@@ -40,12 +40,15 @@ defmodule Core.RabbitMQ do
     Core.Discovery.reachable_nodes() |> Enum.each(fn {node, _} ->
       Enum.each(@exchanges, fn exchange ->
         case shovel_get(node, exchange) do
-          {:ok, _} -> Logger.debug("Shovel #{node}-#{exchange} exists.")
-          _ ->
+          {:ok, %HTTPoison.Response{status_code: 200}} ->
+            Logger.debug("Shovel #{node}-#{exchange} exists.")
+          {:ok, %HTTPoison.Response{status_code: 404}} ->
             case shovel_create(node, exchange) do
               {:ok, _} -> Logger.info("Creating shovel #{node}-#{exchange}.")
               _ -> Logger.error("Failed to create shovel #{node}-#{exchange}.")
             end
+          {:error, %HTTPoison.Error{reason: reason}} ->
+            Logger.error("Failed to query shovel #{node}-#{exchange}.")
         end
       end)
     end)
