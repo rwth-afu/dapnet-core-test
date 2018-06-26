@@ -4,10 +4,12 @@ defmodule Core.RabbitMQ do
   require Logger
 
   def start_link do
-    GenServer.start_link(__MODULE__, [], [])
+    GenServer.start_link(__MODULE__, {}, [name: __MODULE__])
   end
 
   @exchanges ["dapnet.calls", "dapnet.telemetry"]
+
+  def publish_call(data), do: GenServer.call(__MODULE__, {:publish_call, data})
 
   def init(_opts) do
     Process.send_after(self(), :connect, 5000)
@@ -106,5 +108,11 @@ defmodule Core.RabbitMQ do
     url = "http://rabbitmq:15672/api/policies/%2f/dapnet-federation"
     options = [hackney: [basic_auth: {"guest", "guest"}]]
     HTTPoison.get(url, [], options)
+  end
+
+  def handle_call({:publish_call, data}, _from, chan) do
+    data = data |> Poison.encode!
+    AMQP.Basic.publish chan, "dapnet.calls", "", data
+    {:reply, {}, chan}
   end
 end

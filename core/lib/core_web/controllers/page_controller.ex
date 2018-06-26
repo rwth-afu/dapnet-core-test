@@ -18,4 +18,19 @@ defmodule CoreWeb.PageController do
 
     conn |> redirect(to: "/") |> halt()
   end
+
+  def sendcall(conn, params) do
+    address = Map.get(params, "address")
+    message = Map.get(params, "message")
+    transmitter = Map.get(params, "transmitter")
+
+    data = %{
+          address: address,
+          message: message,
+          transmitter: transmitter}
+
+    Core.RabbitMQ.publish_call(data)
+
+    conn |> redirect(to: "/") |> halt()
+  end
 end

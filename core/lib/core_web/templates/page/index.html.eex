@@ -8,12 +8,30 @@
     <% end %>
 <% end %>
 
+<h2>Send Call</h2>
+
+<%= form_for @conn, "/call", [], fn f -> %>
+<label>Address
+    <%= text_input f, :address %>
+</label><br>
+
+<label>Transmitter
+    <%=  select f, :transmitter, Enum.map(@transmitters, fn trx -> trx["doc"]["call"] end) %>
+</label><br>
+
+<label>Message<br>
+    <%= textarea f, :message %>
+</label><br>
+
+<%= submit "Send" %>
+<% end %>
+
 <h2>Add Transmitter</h2>
 
 <%= form_for @conn, "/", [], fn f -> %>
-  <label>
+<label>
     Callsign: <%= text_input f, :call %>
-  </label>
+</label>
 
-  <%= submit "Add" %>
+<%= submit "Add" %>
 <% end %>

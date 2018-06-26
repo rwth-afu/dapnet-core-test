@@ -18,6 +18,7 @@ defmodule CoreWeb.Router do
 
     get "/", PageController, :index
     post "/", PageController, :save
+    post "/call", PageController, :sendcall
   end
 
   # Other scopes may use custom stacks.
