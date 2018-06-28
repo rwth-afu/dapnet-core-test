@@ -21,6 +21,15 @@ defmodule CoreWeb.Router do
     post "/call", PageController, :sendcall
   end
 
+  scope "/mqauth", CoreWeb do
+    pipe_through :api
+
+    get "/user", MqAuthController, :user
+    get "/vhost", MqAuthController, :vhost
+    get "/resource", MqAuthController, :resource
+    get "/topic", MqAuthController, :topic
+  end
+
   # Other scopes may use custom stacks.
   scope "/api", CoreWeb do
     pipe_through :api

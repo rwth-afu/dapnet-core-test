@@ -3,7 +3,7 @@ defmodule Core.CouchDB do
   require Logger
 
   @mgmt_databases ["_users", "_replicator", "_global_changes"]
-  @databases ["users", "transmitters", "rubrics"]
+  @databases ["users", "transmitters", "rubrics", "cores"]
 
   def sync_with(node), do: GenServer.cast(__MODULE__, {:sync_with, node})
   def db(name), do: GenServer.call(__MODULE__, {:db, name})

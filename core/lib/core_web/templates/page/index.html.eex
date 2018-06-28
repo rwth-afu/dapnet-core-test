@@ -1,7 +1,7 @@
 <h2>Transmitters</h2>
 
 <%= for transmitter <- @transmitters do %>
-    <h4><%= String.upcase(transmitter["doc"]["call"]) %></h4>
+    <h4><%= String.upcase(transmitter["id"]) %></h4>
 
     <%= for {k, v} <- transmitter["doc"] do %>
         <code><%= k %>: <%= inspect v %></code><br>

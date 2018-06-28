@@ -17,7 +17,10 @@ defmodule Core.RabbitMQ do
   end
 
   def handle_info(:connect, state) do
-    case Connection.open("amqp://guest:guest@rabbitmq") do
+    id = Application.get_env(:core, Core)[:id]
+    auth_key = Application.get_env(:core, Core)[:auth_key]
+
+    case Connection.open("amqp://core-#{id}:#{auth_key}@rabbitmq") do
       {:ok, conn} ->
         Logger.info("Connection to RabbitMQ successful.")
 
@@ -71,24 +74,24 @@ defmodule Core.RabbitMQ do
 
   def federation_create(node) do
     url = "http://rabbitmq:15672/api/parameters/federation-upstream/%2f/#{node}"
-    params = %{value: %{"uri": "amqp://guest:guest@#{node}",
+    params = %{value: %{"uri": "amqp://core:core@#{node}",
                         "expires": 3600000,
                         "max-hops": 3
                        }} |> Poison.encode!
 
-    options = [hackney: [basic_auth: {"guest", "guest"}]]
+    options = auth_options()
     HTTPoison.put(url, params, [], options)
   end
 
   def federation_delete(node) do
     url = "http://rabbitmq:15672/api/parameters/federation-upstream/%2f/#{node}"
-    options = [hackney: [basic_auth: {"guest", "guest"}]]
+    options = auth_options()
     HTTPoison.delete(url, [], options)
   end
 
   def federation_get(node) do
     url = "http://rabbitmq:15672/api/parameters/federation-upstream/%2f/#{node}"
-    options = [hackney: [basic_auth: {"guest", "guest"}]]
+    options = auth_options()
     HTTPoison.get(url, [], options)
   end
 
@@ -99,14 +102,13 @@ defmodule Core.RabbitMQ do
                "apply-to": "exchanges"
               } |> Poison.encode!
 
-    options = [hackney: [basic_auth: {"guest", "guest"}]]
-
+    options = auth_options()
     HTTPoison.put(url, params, [], options)
   end
 
   def policy_get() do
     url = "http://rabbitmq:15672/api/policies/%2f/dapnet-federation"
-    options = [hackney: [basic_auth: {"guest", "guest"}]]
+    options = auth_options()
     HTTPoison.get(url, [], options)
   end
 
@@ -114,5 +116,11 @@ defmodule Core.RabbitMQ do
     data = data |> Poison.encode!
     AMQP.Basic.publish chan, "dapnet.calls", "", data
     {:reply, {}, chan}
+  end
+
+  def auth_options() do
+    id = Application.get_env(:core, Core)[:id]
+    auth_key = Application.get_env(:core, Core)[:auth_key]
+    options = [hackney: [basic_auth: {"core-#{id}", auth_key}]]
   end
 end
