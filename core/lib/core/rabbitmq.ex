@@ -73,8 +73,11 @@ defmodule Core.RabbitMQ do
   end
 
   def federation_create(node) do
+    id = Application.get_env(:core, Core)[:id]
+    auth_key = Application.get_env(:core, Core)[:auth_key]
+
     url = "http://rabbitmq:15672/api/parameters/federation-upstream/%2f/#{node}"
-    params = %{value: %{"uri": "amqp://core:core@#{node}",
+    params = %{value: %{"uri": "amqp://core-#{id}:#{auth_key}@#{node}",
                         "expires": 3600000,
                         "max-hops": 3
                        }} |> Poison.encode!
