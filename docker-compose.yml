@@ -2,8 +2,6 @@ version: '3'
 services:
   core:
     build: ./core
-    ports:
-    - "4000:4000"
     volumes:
     - "./core:/app"
     - "./config/:/config"
@@ -17,6 +15,21 @@ services:
     depends_on:
     - rabbitmq
     - couchdb
+  nginx:
+    image: nginx
+    volumes:
+    - "./nginx/nginx.conf:/etc/nginx/nginx.conf:ro"
+    ports:
+    - "80:80"
+    - "5984:5984"
+    depends_on:
+    - rabbitmq
+    - couchdb
+    - core
+    links:
+    - rabbitmq
+    - couchdb
+    - core
   rabbitmq:
     image: rabbitmq
     ports:
@@ -24,14 +37,11 @@ services:
     - "4369:4369"
     - "5671:5671"
     - "5672:5672"
-    - "15672:15672"
     volumes:
     - "./rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf"
     - "./rabbitmq/enabled_plugins:/etc/rabbitmq/enabled_plugins"
   couchdb:
     image: couchdb
-    ports:
-    - "5984:5984"
     volumes:
     - "./couchdb/:/opt/couchdb/data"
     environment:
