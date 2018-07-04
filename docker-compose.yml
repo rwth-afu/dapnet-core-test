@@ -19,6 +19,7 @@ services:
     image: nginx
     volumes:
     - "./nginx/nginx.conf:/etc/nginx/nginx.conf:ro"
+    - "./web/dist/:/var/www/dapnet"
     ports:
     - "80:80"
     - "5984:5984"
