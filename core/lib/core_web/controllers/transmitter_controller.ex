@@ -1,29 +1,54 @@
 defmodule CoreWeb.TransmitterController do
   use CoreWeb, :controller
 
-  def bootstrap(conn, params) do
-    case auth(Map.get(params, "callsign"), Map.get(params, "auth_key")) do
+  def index(conn, _params) do
+    {:ok, result} = Core.CouchDB.db("transmitters")
+    |> CouchDB.Database.all_docs([include_docs: true])
+
+    transmitters = result
+    |> Poison.decode!
+    |> Map.get("rows")
+    |> Enum.map(fn(tx) ->
+      Map.get(tx, "doc")
+      |> Map.delete("auth_key")
+    end)
+
+    conn |> json(transmitters)
+  end
+
+  def show(conn, %{"id" => id}) do
+    {:ok, result} = Core.CouchDB.db("transmitters")
+    |> CouchDB.Database.get(id)
+
+    transmitter = result
+    |> Poison.decode!
+
+    conn |> json(transmitter)
+  end
+
+  def bootstrap(conn, %{"callsign" => callsign, "auth_key" => auth_key}) do
+    case transmitter_auth(callsign, auth_key) do
       {:ok, transmitter} ->
         nodes = Core.Discovery.nodes()
         timeslots = transmitter |> Map.get("timeslots", [])
         conn |> json(%{nodes: nodes, timeslots: timeslots})
       _ ->
-        send_forbidden conn
+        forbidden conn
     end
   end
 
-  def heartbeat(conn, params) do
-    case auth(Map.get(params, "callsign"), Map.get(params, "auth_key")) do
-      {:ok, transmitter} ->
+  def heartbeat(conn, %{"callsign" => callsign, "auth_key" => auth_key}) do
+    case transmitter_auth(callsign, auth_key) do
+      {:ok, _transmitter} ->
         conn |> json(%{status: :ok})
       _ ->
-        send_forbidden conn
+        forbidden conn
     end
   end
 
-  defp auth(callsign, auth_key) do
-    db = Core.CouchDB.db("transmitters")
-    result = CouchDB.Database.get(db, String.downcase(callsign))
+  defp transmitter_auth(callsign, auth_key) do
+    result = Core.CouchDB.db("transmitters")
+    |> CouchDB.Database.get(String.downcase(callsign))
 
     case result do
       {:ok, data} ->
@@ -38,7 +63,7 @@ defmodule CoreWeb.TransmitterController do
     end
   end
 
-  defp send_forbidden(conn) do
+  defp forbidden(conn) do
     conn
     |> put_status(:forbidden)
     |> json(%{"error": "Forbidden."})

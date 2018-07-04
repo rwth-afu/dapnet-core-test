@@ -23,6 +23,7 @@ defmodule CoreWeb do
       import Plug.Conn
       import CoreWeb.Router.Helpers
       import CoreWeb.Gettext
+      import CoreWeb.Plugs.Auth
     end
   end
 

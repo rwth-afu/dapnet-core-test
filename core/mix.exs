@@ -38,6 +38,8 @@ defmodule Core.Mixfile do
       {:httpoison, "~> 1.1.1"},
       {:timex, "~> 3.1"},
       {:elixir_uuid, "~> 1.2"},
+      {:comeonin, "~> 4.0"},
+      {:bcrypt_elixir, "~> 1.0"},
       {:couchdb, github: "7h0ma5/elixir-couchdb"},
       {:phoenix, "~> 1.3.2"},
       {:phoenix_pubsub, "~> 1.0"},

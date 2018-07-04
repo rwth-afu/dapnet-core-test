@@ -11,6 +11,7 @@ defmodule CoreWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
+    plug CoreWeb.Plugs.BasicAuth
   end
 
   scope "/", CoreWeb do
@@ -36,7 +37,12 @@ defmodule CoreWeb.Router do
 
     get "/discovery", DiscoveryController, :index
 
-    post "/transmitter/bootstrap", TransmitterController, :bootstrap
-    post "/transmitter/heartbeat", TransmitterController, :heartbeat
+    put "/users", UserController, :create
+    get "/users/:id", UserController, :show
+
+    get  "/transmitters", TransmitterController, :index
+    get  "/transmitters/:id", TransmitterController, :show
+    post "/transmitters/bootstrap", TransmitterController, :bootstrap
+    post "/transmitters/heartbeat", TransmitterController, :heartbeat
   end
 end
