@@ -7,9 +7,11 @@ defmodule Core.RabbitMQ do
     GenServer.start_link(__MODULE__, {}, [name: __MODULE__])
   end
 
-  @exchanges ["dapnet.calls", "dapnet.telemetry"]
+  @exchanges ["dapnet.transmitters", "dapnet.telemetry"]
 
-  def publish_call(data), do: GenServer.call(__MODULE__, {:publish_call, data})
+  def publish_call(transmitter, data) do
+    GenServer.call(__MODULE__, {:publish_call, transmitter, data})
+  end
 
   def init(_opts) do
     Process.send_after(self(), :connect, 5000)
@@ -28,7 +30,7 @@ defmodule Core.RabbitMQ do
 
         Enum.each(@exchanges, fn exchange ->
           Logger.info("Creating #{exchange} exchange.")
-          :ok = Exchange.fanout(chan, exchange, durable: true)
+          :ok = Exchange.topic(chan, exchange, durable: true)
         end)
 
         Process.send_after(self(), :federation, 5000)
@@ -115,15 +117,15 @@ defmodule Core.RabbitMQ do
     HTTPoison.get(url, [], options)
   end
 
-  def handle_call({:publish_call, data}, _from, chan) do
-    data = data |> Poison.encode!
-    AMQP.Basic.publish chan, "dapnet.calls", "", data
-    {:reply, {}, chan}
-  end
-
   def auth_options() do
     id = Application.get_env(:core, Core)[:id]
     auth_key = Application.get_env(:core, Core)[:auth_key]
     options = [hackney: [basic_auth: {"core-#{id}", auth_key}]]
+  end
+
+  def handle_call({:publish_call, transmitter, data}, _from, chan) do
+    data = data |> Poison.encode!
+    AMQP.Basic.publish chan, "dapnet.transmitters", transmitter <> ".call", data
+    {:reply, {}, chan}
   end
 end

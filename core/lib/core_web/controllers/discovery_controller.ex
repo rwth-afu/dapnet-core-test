@@ -3,7 +3,6 @@ defmodule CoreWeb.DiscoveryController do
 
   def index(conn, _params) do
     nodes = Core.Discovery.nodes()
-    render conn, "index.json", nodes: nodes
-#    send_resp(conn, 200, Poison.encode!(nodes))
+    conn |> json(%{nodes: nodes})
   end
 end

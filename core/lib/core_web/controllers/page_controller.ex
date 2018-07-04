@@ -12,7 +12,8 @@ defmodule CoreWeb.PageController do
     db = Core.CouchDB.db("transmitters")
 
     call = Map.get(params, "call")
-    body = Poison.encode!(%{call: call})
+    auth_key = Map.get(params, "auth_key")
+    body = Poison.encode!(%{_id: call, auth_key: auth_key})
 
     {:ok, _} = CouchDB.Database.insert(db, body)
 
@@ -24,12 +25,19 @@ defmodule CoreWeb.PageController do
     message = Map.get(params, "message")
     transmitter = Map.get(params, "transmitter")
 
-    data = %{
-          address: address,
-          message: message,
-          transmitter: transmitter}
+    hostname = Application.get_env(:core, Core)[:hostname]
+    id = UUID.uuid5(:dns, hostname)
 
-    Core.RabbitMQ.publish_call(data)
+    data = %{
+      id: id,
+      mtype: "AlphaNum",
+      speed: 1200,
+      addr: address,
+      func: 3,
+      data: message
+    }
+
+    Core.RabbitMQ.publish_call(transmitter, data)
 
     conn |> redirect(to: "/") |> halt()
   end

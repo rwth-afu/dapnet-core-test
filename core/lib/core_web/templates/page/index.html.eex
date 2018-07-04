@@ -16,7 +16,7 @@
 </label><br>
 
 <label>Transmitter
-    <%=  select f, :transmitter, Enum.map(@transmitters, fn trx -> trx["doc"]["call"] end) %>
+    <%=  select f, :transmitter, Enum.map(@transmitters, fn trx -> trx["id"] end) %>
 </label><br>
 
 <label>Message<br>
@@ -31,6 +31,10 @@
 <%= form_for @conn, "/", [], fn f -> %>
 <label>
     Callsign: <%= text_input f, :call %>
+</label><br>
+
+<label>
+    Auth Key: <%= text_input f, :auth_key %>
 </label>
 
 <%= submit "Add" %>
