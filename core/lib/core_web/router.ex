@@ -35,5 +35,8 @@ defmodule CoreWeb.Router do
     pipe_through :api
 
     get "/discovery", DiscoveryController, :index
+
+    post "/transmitter/bootstrap", TransmitterController, :bootstrap
+    post "/transmitter/heartbeat", TransmitterController, :heartbeat
   end
 end
