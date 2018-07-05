@@ -37,12 +37,18 @@ defmodule CoreWeb.Router do
 
     get "/discovery", DiscoveryController, :index
 
-    put "/users", UserController, :create
-    get "/users/:id", UserController, :show
+    get    "/calls", CallController, :index
+    put    "/calls", CallController, :create
 
-    get  "/transmitters", TransmitterController, :index
-    get  "/transmitters/:id", TransmitterController, :show
-    post "/transmitters/bootstrap", TransmitterController, :bootstrap
-    post "/transmitters/heartbeat", TransmitterController, :heartbeat
+    get    "/users", UserController, :index
+    put    "/users", UserController, :create
+    get    "/users/:id", UserController, :show
+
+    get    "/transmitters", TransmitterController, :index
+    put    "/transmitters", TransmitterController, :create
+    get    "/transmitters/:id", TransmitterController, :show
+    delete "/transmitters/:id", TransmitterController, :delete
+    post   "/transmitters/bootstrap", TransmitterController, :bootstrap
+    post   "/transmitters/heartbeat", TransmitterController, :heartbeat
   end
 end

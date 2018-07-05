@@ -26,6 +26,18 @@ defmodule CoreWeb.TransmitterController do
     conn |> json(transmitter)
   end
 
+
+  def create(conn, transmitter) do
+    transmitter = Poison.encode!(transmitter)
+
+    {:ok, result} = Core.CouchDB.db("transmitters")
+    |> CouchDB.Database.insert(transmitter)
+
+    transmitter = Poison.decode!(result)
+
+    conn |> json(transmitter)
+  end
+
   def bootstrap(conn, %{"callsign" => callsign, "auth_key" => auth_key}) do
     case transmitter_auth(callsign, auth_key) do
       {:ok, transmitter} ->

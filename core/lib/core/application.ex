@@ -10,6 +10,7 @@ defmodule Core.Application do
     children = [
       # Start the endpoint when the application starts
       supervisor(CoreWeb.Endpoint, []),
+      worker(Core.CallStorage, [], restart: :permanent),
       worker(Core.RabbitMQ, [], restart: :permanent),
       worker(Core.Discovery, [], restart: :permanent),
       worker(Core.CouchDB, [], restart: :permanent),
